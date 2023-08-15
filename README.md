@@ -9,6 +9,7 @@ Successful login data are saved in hits.txt
 - [ ] Multiport scanner
 - [ ] Random password login
 - [ ] IP-list API
+- [ ] Remve used ip
 
 ## WARNING
 The application is not a hacking tool, it is only a testing tool for your own servers
