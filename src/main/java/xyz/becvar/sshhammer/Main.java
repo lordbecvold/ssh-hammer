@@ -117,6 +117,9 @@ public class Main {
                         } else {
                             connectSSH(ipToAttack, targetPort);
                         }
+
+                        // delete scanned ip from list
+                        FileUtils.removeLineFromFile("ip-list.txt", ipToAttack);
                     }
                     SystemUtils.appShutdown(0);
                 } catch (IOException e) {

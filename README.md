@@ -7,7 +7,7 @@ Successful login data are saved in hits.txt
 ## TODOS:
 - [ ] Proxy switcher
 - [ ] IP-list API
-- [ ] Remve used ip
+- [X] Remve used ip
 
 ## WARNING
 The application is not a hacking tool, it is only a testing tool for your own servers
