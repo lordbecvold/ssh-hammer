@@ -6,8 +6,6 @@ Successful login data are saved in hits.txt
 
 ## TODOS:
 - [ ] Proxy switcher
-- [ ] Multiport scanner
-- [ ] Random password login
 - [ ] IP-list API
 - [ ] Remve used ip
 

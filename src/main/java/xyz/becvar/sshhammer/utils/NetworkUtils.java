@@ -3,20 +3,30 @@ package xyz.becvar.sshhammer.utils;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import xyz.becvar.sshhammer.Main;
+import xyz.becvar.sshhammer.utils.console.ConsoleColors;
 import xyz.becvar.sshhammer.utils.console.Logger;
 import java.io.IOException;
 import java.net.*;
 
 public class NetworkUtils {
 
+    // init instances
+    public static Logger logger = Logger.INSTANCE;
+
     // check if adress reachable and return boolean value
     public static boolean isReachable(String host, int openPort, int timeOutMillis) {
         try {
+
+            logger.log("Testing network: " + host + ":" + openPort + " reachable");
             try (Socket soc = new Socket()) {
                 soc.connect(new InetSocketAddress(host, openPort), timeOutMillis);
             }
+
+            logger.log(ConsoleColors.CODES.ANSI_GREEN + "Testing network: " + host + ":" + openPort + " reachable sucess");
             return true;
         } catch (IOException ex) {
+            logger.logError("Networtk: " + host + ":" + openPort + " is not reachable");
             return false;
         }
     }
@@ -51,7 +61,10 @@ public class NetworkUtils {
             session.setPassword(password);
 
             // print log
-            Logger.INSTANCE.log("Trying to connect ssh host: " + host + ":" + port + " with " + username + ":" + password);
+            logger.log("Trying to connect ssh host: " + host + ":" + port + " with " + username + ":" + password);
+
+            // set connection timeout
+            session.setTimeout(Main.maxTimeOutSeconds * 1000);
 
             // try conneect to session
             session.connect();
@@ -66,7 +79,7 @@ public class NetworkUtils {
         } catch (JSchException e) {
 
             // print connction error
-            Logger.INSTANCE.logError("host: " + host + ":" + port + " -> " + username + ":" + password + " connection error " + e.getMessage());
+            logger.logError("host: " + host + ":" + port + " connection error " + e.getMessage());
             return false;
         }
     }

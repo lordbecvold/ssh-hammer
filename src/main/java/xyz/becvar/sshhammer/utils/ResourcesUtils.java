@@ -9,13 +9,16 @@ import java.nio.file.StandardCopyOption;
 
 public class ResourcesUtils {
 
+    // init instances
+    public static Logger logger = Logger.INSTANCE;
+
     // function for copy resource to working directory
     public static void copyResource(InputStream source, String destination) {
         try {
             Files.copy(source, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
-            Logger.INSTANCE.log("file: " + destination + " created successful");
+            logger.log("file: " + destination + " created!");
         } catch (IOException e) {
-            Logger.INSTANCE.logError("error create file: " + destination);
+            logger.logError("error create file: " + destination);
             SystemUtils.appShutdown(0);
         }
     }

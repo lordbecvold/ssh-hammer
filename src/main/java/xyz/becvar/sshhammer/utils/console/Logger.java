@@ -14,7 +14,16 @@ public enum Logger {
         System.out.println(prefix + msg);
     }
 
+    // log to console with custom app prefix in line
+    public void logInLine(String msg) {
+        System.out.print(prefix + msg);
+    }
+
     public void logError(String msg) {
         System.out.println(prefix + ConsoleColors.CODES.ANSI_RED + msg);
+    }
+
+    public void printSpacer() {
+        System.out.println(ConsoleColors.CODES.ANSI_WHITE + "=====================================================================================================");
     }
 }
