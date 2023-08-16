@@ -96,9 +96,6 @@ public class Main {
             }
         }
 
-        // print spacer
-        logger.printSpacer();
-
         // check if used ip-list
         if (useIPList) {
 
@@ -155,9 +152,6 @@ public class Main {
             logger.log("You can found found connection in hits.txt");
         }
 
-        // print spacer
-        logger.printSpacer();
-
         // end app
         SystemUtils.appShutdown(0);
     }
@@ -194,9 +188,6 @@ public class Main {
                                     // print connection error
                                     logger.log(ConsoleColors.CODES.ANSI_YELLOW + host + ":" + port + " -> " + user + ":" + password + " not connected");
                                 }
-
-                                // print spacer
-                                logger.printSpacer();
                             }
                         } catch (IOException e) {
                             logger.logError(e.getMessage());

@@ -22,8 +22,4 @@ public enum Logger {
     public void logError(String msg) {
         System.out.println(prefix + ConsoleColors.CODES.ANSI_RED + msg);
     }
-
-    public void printSpacer() {
-        System.out.println(ConsoleColors.CODES.ANSI_WHITE + "=====================================================================================================");
-    }
 }
