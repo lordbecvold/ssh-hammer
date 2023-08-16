@@ -18,15 +18,24 @@ public class NetworkUtils {
     public static boolean isReachable(String host, int openPort, int timeOutMillis) {
         try {
 
+            // log rachable msg
             logger.log("Testing network: " + host + ":" + openPort + " reachable");
+
             try (Socket soc = new Socket()) {
                 soc.connect(new InetSocketAddress(host, openPort), timeOutMillis);
             }
 
             logger.log(ConsoleColors.CODES.ANSI_GREEN + "Testing network: " + host + ":" + openPort + " reachable sucess");
+
+            // print spacer
+            logger.printSpacer();
+
             return true;
         } catch (IOException ex) {
             logger.logError("Networtk: " + host + ":" + openPort + " is not reachable");
+
+            // print spacer
+            logger.printSpacer();
             return false;
         }
     }

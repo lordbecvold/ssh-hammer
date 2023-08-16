@@ -96,6 +96,9 @@ public class Main {
             }
         }
 
+        // print spacer
+        logger.printSpacer();
+
         // check if used ip-list
         if (useIPList) {
 
@@ -112,10 +115,7 @@ public class Main {
                     while ((ipToAttack = br.readLine()) != null) {
 
                         // check if ipv4 reachable ssh
-                        if (!NetworkUtils.isReachable(ipToAttack, targetPort, maxTimeOutSeconds * 1000)) {
-                            logger.logError("'"+ ipToAttack + ":" + targetPort + "'" + " -> SSH unreachable");
-                        } else {
-
+                        if (NetworkUtils.isReachable(ipToAttack, targetPort, maxTimeOutSeconds * 1000)) {
                             // check if using publickey
                             if (NetworkUtils.publickeyOnlyCheck("test", targetPort, ipToAttack, "1234")) {
 
@@ -142,9 +142,7 @@ public class Main {
         } else {
 
             // check if ipv4 reachable ssh
-            if (!NetworkUtils.isReachable(targetIP, targetPort, maxTimeOutSeconds * 1000)) {
-                logger.logError("'"+ targetIP + ":" + targetPort + "'" + " -> SSH unreachable");
-            } else {
+            if (NetworkUtils.isReachable(targetIP, targetPort, maxTimeOutSeconds * 1000)) {
                 connectSSH(targetIP, targetPort);
             }
         }
@@ -156,6 +154,9 @@ public class Main {
         if (FileUtils.ifFileExist("hits.txt")) {
             logger.log("You can found found connection in hits.txt");
         }
+
+        // print spacer
+        logger.printSpacer();
 
         // end app
         SystemUtils.appShutdown(0);
