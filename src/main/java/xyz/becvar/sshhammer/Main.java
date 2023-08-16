@@ -119,7 +119,11 @@ public class Main {
                             // check if using publickey
                             if (NetworkUtils.publickeyOnlyCheck("test", targetPort, ipToAttack, "1234")) {
 
+                                // log skipped ip
                                 logger.logError("host: " + ipToAttack + " using publickey only = skipped");
+
+                                // remove skipped ip form list
+                                FileUtils.removeLineFromFile("ip-list.txt", ipToAttack);
 
                                 // skip loop
                                 continue;
