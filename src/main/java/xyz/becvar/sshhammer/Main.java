@@ -121,7 +121,6 @@ public class Main {
                         // delete scanned ip from list
                         FileUtils.removeLineFromFile("ip-list.txt", ipToAttack);
                     }
-                    SystemUtils.appShutdown(0);
                 } catch (IOException e) {
                     Logger.INSTANCE.logError(e.getMessage());
                 }
@@ -133,9 +132,19 @@ public class Main {
                 logger.logError("'"+ targetIP + ":" + targetPort + "'" + " -> SSH unreachable");
             } else {
                 connectSSH(targetIP, targetPort);
-                SystemUtils.appShutdown(0);
             }
         }
+
+        // log end msg
+        logger.log("Attack is ended!");
+
+        // check if hits found
+        if (FileUtils.ifFileExist("hits.txt")) {
+            logger.log("You can found found connection in hits.txt");
+        }
+
+        // end app
+        SystemUtils.appShutdown(0);
     }
 
     // main SSH connect function
