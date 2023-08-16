@@ -44,6 +44,39 @@ public class NetworkUtils {
         return isIPv4;
     }
 
+    // check if host uses publickey
+    public static boolean publickeyOnlyCheck(String username, int port, String host, String password) {
+
+        try {
+            // init jsch
+            JSch jsch = new JSch();
+
+            // create session
+            Session session = jsch.getSession(username, host, port);
+
+            // set session configs
+            //session.setConfig("PreferredAuthentications", "password");
+            session.setConfig("StrictHostKeyChecking", "no");
+
+            // set session password
+            session.setPassword(password);
+
+            // set connection timeout
+            session.setTimeout(Main.maxTimeOutSeconds * 1000);
+
+            // try conneect to session
+            session.connect();
+
+        } catch (JSchException e) {
+
+            // print connction error
+            if (e.getMessage().contains("Auth fail for methods 'publickey'")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // check if connection valid
     public static boolean sshConnectionValid(String username, int port, String host, String password) {
         try {

@@ -115,7 +115,17 @@ public class Main {
                         if (!NetworkUtils.isReachable(ipToAttack, targetPort, maxTimeOutSeconds * 1000)) {
                             logger.logError("'"+ ipToAttack + ":" + targetPort + "'" + " -> SSH unreachable");
                         } else {
-                            connectSSH(ipToAttack, targetPort);
+
+                            // check if using publickey
+                            if (NetworkUtils.publickeyOnlyCheck("test", targetPort, ipToAttack, "1234")) {
+
+                                logger.logError("host: " + ipToAttack + " using publickey only = skipped");
+
+                                // skip loop
+                                continue;
+                            } else {
+                                connectSSH(ipToAttack, targetPort);
+                            }
                         }
 
                         // delete scanned ip from list

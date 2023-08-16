@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <build.version>1.1</build.version>
+        <build.version>1.2</build.version>
         <build.package>xyz.becvar.sshhammer</build.package>
         <build.main>xyz.becvar.sshhammer.Main</build.main>
         <maven.compiler.source>17</maven.compiler.source>
