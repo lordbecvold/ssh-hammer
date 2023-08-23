@@ -21,10 +21,13 @@ public class Main {
     public static boolean useIPList = false;
     public static String targetIP = null;
     public static int targetPort = 22;
-    public static int maxTimeOutSeconds = 5;
+    public static int maxTimeOutSeconds = 1;
 
     // MAIN APP FUCTION
     public static void main(String[] args) {
+
+        // log ascii
+        logger.logAscii();
 
         // create default usernames list
         if (!FileUtils.ifFileExist("usernames.txt")) {
@@ -81,7 +84,7 @@ public class Main {
         }
 
         // question for max timeout seconds
-        logger.logInLine("Enter max connection timeout [default is 5s]: ");
+        logger.logInLine("Enter max connection timeout [default is 1s]: ");
 
         // temp timeout seconds
         String timeOutTemp = scanner.nextLine();
