@@ -38,10 +38,10 @@ with open("ip-ranges.txt") as f1, open("ip-list.txt", "w") as f:
 
             # check if ssh open
             if ping_server(str(addr), 22, 1):
-               print("\033[36mTesting: " + str(addr) + " -> "  + " range: " + line.rstrip('\n') + " = \033[32mOpen")
+               print("\033[36mTesting: " + str(addr) + " -> "  + "range: " + line.rstrip('\n') + " = \033[32mOpen")
                f.write(str(addr) + '\n')
             else:
-                print("\033[36mTesting: " + str(addr) + " -> "  + " range: " + line.rstrip('\n') + " = \033[31mClosed")
+                print("\033[36mTesting: " + str(addr) + " -> "  + "range: " + line.rstrip('\n') + " = \033[31mClosed")
 
         # delete used line
         delete_range("ip-ranges.txt", line.rstrip('\n'))
