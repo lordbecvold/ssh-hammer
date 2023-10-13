@@ -43,7 +43,7 @@ def calculate_ip_list(input_file, output_file):
                 # delete line
                 delete_range(input_file, line)
             except Exception as e:
-                print(f"Chyba při zpracování rozsahu {cidr}: {e}")
+                print(f"Error calculate range: {cidr}: {e}")
 
 # init main function
 calculate_ip_list(input_file, output_file)
