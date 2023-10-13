@@ -1,24 +1,9 @@
-#!/usr/bin/python
-
-# script for calculate ip-list from ranges
-# input file ip-ranges.txt -> ip-list.txt
-
-from netaddr import *
 import socket
+from netaddr import IPNetwork
 
-# check if port open
-def ping_server(server: str, port: int, timeout=1):
-    """ping server"""
-    try:
-        socket.setdefaulttimeout(timeout)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((server, port))
-    except OSError as error:
-        return False
-    else:
-        s.close()
-        return True
-
+# files
+input_file = "ip-ranges.txt"
+output_file = "ip-list.txt"
 
 # delete line from file
 def delete_range(rangeFile: str, rangeLine: str):
@@ -30,18 +15,35 @@ def delete_range(rangeFile: str, rangeLine: str):
     with open(rangeFile, 'w') as file:
         file.writelines(lines)
 
-with open("ip-ranges.txt") as f1, open("ip-list.txt", "w") as f:
-    for line in f1:
-        cidr = line.rstrip('\n')
-        ip = IPNetwork(cidr)
-        for addr in ip:
+# check if ssh open
+def is_port_open(ip, port, timeout=1):
+    try:
+        socket.setdefaulttimeout(timeout)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((ip, port))
+        s.close()
+        return True
+    except (socket.error, socket.timeout):
+        return False
 
-            # check if ssh open
-            if ping_server(str(addr), 22, 1):
-               print("\033[36mTesting: " + str(addr) + " -> "  + "range: " + line.rstrip('\n') + " = \033[32mOpen")
-               f.write(str(addr) + '\n')
-            else:
-                print("\033[36mTesting: " + str(addr) + " -> "  + "range: " + line.rstrip('\n') + " = \033[31mClosed")
+# calculate ips
+def calculate_ip_list(input_file, output_file):
+    with open(input_file, "r") as f1:
+        for line in f1:
+            cidr = line.strip()
+            try:
+                ip_network = IPNetwork(cidr)
+                for ip in ip_network:
+                    if is_port_open(str(ip), 22):
+                        with open(output_file, "a") as f2:
+                            f2.write(str(ip) + "\n")
+                        print("\033[36mTesting: " + str(ip) + " -> "  + "range: " + line.rstrip('\n') + " = \033[32mOpen")
+                    else:
+                        print("\033[36mTesting: " + str(ip) + " -> "  + "range: " + line.rstrip('\n') + " = \033[31mClosed")
+                # delete line
+                delete_range(input_file, line)
+            except Exception as e:
+                print(f"Chyba při zpracování rozsahu {cidr}: {e}")
 
-        # delete used line
-        delete_range("ip-ranges.txt", line.rstrip('\n'))
+# init main function
+calculate_ip_list(input_file, output_file)
