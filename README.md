@@ -4,11 +4,6 @@ The ssh hammer uses 2 basic wordlst for usernames and passwords, they are crated
 For IP adress is used ip-list.txt
 Successful login data are saved in hits.txt
 
-## TODOS:
-- [ ] Proxy switcher
-- [ ] IP-list API
-- [X] Remve used ip
-
 ## WARNING
 The application is not a hacking tool, it is only a testing tool for your own servers
 
