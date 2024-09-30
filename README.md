@@ -9,3 +9,6 @@ This project requires Java 17.
 * Miede Jsch
     * Version: **0.2.11**
     * [Github](https://github.com/mwiede/jsch) 
+
+## License
+The framework is open-sourced software licensed under the [MIT license](https://github.com/lukasbecvar/ssh-hammer/blob/main/LICENSE)
