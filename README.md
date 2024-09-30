@@ -4,14 +4,14 @@ The ssh hammer uses 2 basic wordlst for usernames and passwords, they are crated
 For IP adress is used ip-list.txt
 Successful login data are saved in hits.txt
 
-## End of support
-This project is no longer being maintained or developed, and no further updates or support will be provided.
-
 ## Dependencies
 This project requires Java 17.
 * Miede Jsch
     * Version: **0.2.11**
     * [Github](https://github.com/mwiede/jsch) 
+
+## End of support
+This project is no longer being maintained or developed, and no further updates or support will be provided.
 
 ## License
 The project is open-sourced software licensed under the [MIT license](https://github.com/lukasbecvar/ssh-hammer/blob/main/LICENSE)
